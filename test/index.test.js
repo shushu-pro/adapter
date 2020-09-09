@@ -10,6 +10,11 @@ import testEnum from './children/command/enum'
 import testEmap from './children/command/emap'
 import testValue from './children/command/value'
 import testFormat from './children/command/format'
+import strict from './children/command/strict'
+import clears from './children/command/clears'
+import increase from './children/command/increase'
+import reduce from './children/command/reduce'
+
 
 import immutable from './children/common/immutable'
 import multiLevels from './children/common/multi-levels'
@@ -23,6 +28,7 @@ ijest({
   // 上下文环境
   context: {
     adapter,
+    now: date,
     data: {
       price: 1.11,
       status: 2,
@@ -55,6 +61,10 @@ ijest({
     emap: testEmap,
     value: testValue,
     format: testFormat,
+    strict,
+    clears,
+    increase,
+    reduce,
     immutable,
     multiLevels,
     multiRules,

@@ -10,7 +10,7 @@ const transform = adapter({
 //   price: 1.11,
 // })
 const date = new Date()
-const data = {
+const data2 = {
   value: 1,
   price: 1.11,
   status: 2,
@@ -24,24 +24,20 @@ const data = {
   mapKey: 'hasReady',
 }
 
-adapter.addFormat('increase', (value, ctx, num = 1) => { // 一个累加器，可以给一个值进行累加操作
-  return value + Number(num)
-})
-adapter.addFormat('toArray', (value, ctx, token = ',') => { // 转换数组
-  return value.split(token)
-})
-
-const nextData = adapter({ // 传递多条指令，就像管道函数一样，前面的结果作为后面的输入
-  value: {
-    $format: [
-      'increase:1',
-      'increase:-2',
-      'increase:1234',
-      String,
-      'toArray:',
-      (arr) => arr.map(Number),
-    ],
+const data = {
+  name: '张三',
+}
+const nextData = adapter({
+  $increase: {
+    $key: 'data1',
+    $increase: {
+      $key: 'data2',
+      name: true,
+    },
+    name: true,
   },
+  name: true,
 }, data)
 
-console.info(nextData, { value: [ '1', '2', '3', '4' ] })
+
+console.info(nextData)

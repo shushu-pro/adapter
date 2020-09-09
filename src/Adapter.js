@@ -35,7 +35,11 @@ function Adapter ({ $strict, $clears } = {}) {
     // 运行上下文中的适配器
     function adapter (setting, data) {
       setting.$strict = $strict
-      return createTransform(setting)(data)
+      const transform = createTransform(setting)
+      if (arguments.length === 1) {
+        return transform
+      }
+      return transform(data)
     }
 
     // data: 输入的数据， dataIndex：数据下标，dataRow：数据所在记录，rootData：数据所在根数据
@@ -120,10 +124,14 @@ function Adapter ({ $strict, $clears } = {}) {
         }
 
         const { $key = key, $default, $emap, $enum, $type, $value } = setting
-        let { $format } = setting
+        let { $format, $increase, $reduce } = setting
 
         if ($format) {
           $format = createFormat($format)
+        }
+
+        if ($increase) {
+          $increase = createIncrease($increase)
         }
 
         // 无$value指令，无$format指令，会对内部的其他字段进行遍历转化
@@ -150,7 +158,7 @@ function Adapter ({ $strict, $clears } = {}) {
               } else {
                 defaultValue = $default
               }
-              return addData(dataParent, defaultValue, $key)
+              return addData(dataParent, defaultValue, $key, $reduce)
             }
 
             let nextData
@@ -181,6 +189,36 @@ function Adapter ({ $strict, $clears } = {}) {
                   walkDatas(data[key], fullKeys.concat([ key ]), index, nextData, data)
                 }
               }
+
+              // 对象型数据支持$increase和$reduce
+              if (typeof data === 'object') {
+                if ($increase) {
+                  const increaseData = {}
+                  $increase.forEach(({ key, transform }) => {
+                    const nextData = transform(data)
+                    if (Array.isArray(key)) {
+                      const keys = key
+                      const headKey = keys.shift()
+
+                      if (keys.length === 0) {
+                        increaseData[headKey] = nextData
+                      } else {
+                        const tailKey = keys.pop()
+                        let tailData
+                        increaseData[headKey] = tailData = {}
+                        for (let i = 0; i < keys.length; i++) {
+                          tailData = tailData[keys[i]] = {}
+                        }
+
+                        tailData[tailKey] = nextData
+                      }
+                    } else {
+                      increaseData[key] = transform(data)
+                    }
+                  })
+                  nextData = Object.assign(nextData, increaseData)
+                }
+              }
             } else { // 直接量
               if (typeIs($type)) {
                 nextData = $type(data)
@@ -196,8 +234,7 @@ function Adapter ({ $strict, $clears } = {}) {
                 nextData = data
               }
             }
-
-            addData(dataParent, nextData, $key)
+            addData(dataParent, nextData, $key, $reduce)
           },
         }
       })
@@ -333,6 +370,17 @@ function Adapter ({ $strict, $clears } = {}) {
       return nextFormat
     }
 
+    // 创建increase规则
+    function createIncrease ($increase) {
+      return (Array.isArray($increase) ? $increase : [ $increase ]).map(increase => {
+        const { $key, ...rest } = increase
+        return {
+          key: $key,
+          transform: adapter({ ...rest }),
+        }
+      })
+    }
+
     // 执行格式化，formats:格式化规则，data：待格式化输入的数据，context：运行上下文
     function dispatchFormats (formats, data, context) {
       return formats.reduce((nextData, { args, dispatch }) => dispatch(nextData, context, ...args), data)
@@ -344,15 +392,34 @@ function Adapter ({ $strict, $clears } = {}) {
     }
 
     // 将值插入到对象中
-    function addData (dataParent, data, key = 'exportData') {
+    function addData (dataParent, data, key = 'exportData', isReduce) {
       // 过滤掉符合过滤条件的值
+      if ($clearsValues.length) {
+        for (let i = 0; i < $clearsValues.length; i++) {
+          const clearValue = $clearsValues[i]
+          if (typeof clearValue === 'function') {
+            // 函数类型，返回true则进行过滤
+            if (clearValue(data, key) === true) {
+              return
+            }
+          } else if (clearValue === data) {
+            // 值和过滤表中的一直，则进行过滤
+            return
+          }
+        }
+      }
+
       if ($clearsValues.includes(data)) {
         return
       }
       if (Array.isArray(dataParent)) {
         dataParent.push(data)
       } else {
-        dataParent[key] = data
+        if (isReduce) {
+          Object.assign(dataParent, data)
+        } else {
+          dataParent[key] = data
+        }
       }
     }
   }
@@ -386,6 +453,7 @@ function typeIs (type) {
 
 // 结构调整指令
 // $increase > $reduce
+// $reduce: true 缩减层级，仅对引用数据有效
 
 // 深度keys索引
 // $deepKeys
