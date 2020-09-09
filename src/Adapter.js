@@ -123,7 +123,7 @@ function Adapter ({ $strict, $clears } = {}) {
           return null
         }
 
-        const { $key = key, $default, $emap, $enum, $type, $value } = setting
+        const { $key = key, $default, $emap, $enum, $type, $value, $deepKeys } = setting
         let { $format, $increase, $reduce } = setting
 
         if ($format) {
@@ -138,6 +138,12 @@ function Adapter ({ $strict, $clears } = {}) {
         if (!$value && !$format) {
           for (const key in setting) {
             if (key.startsWith('$')) {
+              // $deepKeys实现多层索引适配，必须是非严格模式
+              if (key === '$deepKeys') {
+                for (const keys in $deepKeys) {
+                  addRules(fullKeys.concat(keys.split('.')), $deepKeys[keys])
+                }
+              }
               continue
             }
             addRules(fullKeys.concat(key), setting[key])

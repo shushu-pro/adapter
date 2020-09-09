@@ -14,11 +14,12 @@ import strict from './children/command/strict'
 import clears from './children/command/clears'
 import increase from './children/command/increase'
 import reduce from './children/command/reduce'
-
+import deepKeys from './children/command/deep-keys'
 
 import immutable from './children/common/immutable'
 import multiLevels from './children/common/multi-levels'
 import multiRules from './children/common/multi-rules'
+
 import context from './children/common/context'
 import normal from './children/example/normal'
 
@@ -65,6 +66,7 @@ ijest({
     clears,
     increase,
     reduce,
+    deepKeys,
     immutable,
     multiLevels,
     multiRules,
