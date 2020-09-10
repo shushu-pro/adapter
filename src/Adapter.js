@@ -424,12 +424,13 @@ function Adapter ({ $strict, $clears } = {}) {
         if (isReduce) {
           Object.assign(dataParent, data)
         } else {
-          dataParent[key] = data
+          dataParent[typeof key === 'function' ? key(data) : key] = data
         }
       }
     }
   }
 }
+
 
 export default Adapter
 

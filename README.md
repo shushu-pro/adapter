@@ -190,7 +190,7 @@ const testData = { key1:1, key2:2, key3:3 }
 const newData = adapter({
     key1: 'newKey1', // 使用速写指令进行转换
     key2: { $key: 'newKey2' } // 使用`$key`指令进行转换
-    key3: { $key: (value, key, ctx) => 'newKey3'} // 使用函数
+    key3: { $key: (value) => 'newKey3'} // 使用函数
 }, testData)
 
 // 输出

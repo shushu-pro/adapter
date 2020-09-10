@@ -28,15 +28,11 @@ const data = {
   name: '张三',
 }
 const nextData = adapter({
-  $increase: {
-    $key: 'data1',
-    $increase: {
-      $key: 'data2',
-      name: true,
+  name: {
+    $key: (value, key, ctx) => {
+      return 'xxx'
     },
-    name: true,
   },
-  name: true,
 }, data)
 
 
