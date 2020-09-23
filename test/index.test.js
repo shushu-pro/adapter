@@ -4,6 +4,7 @@
 import ijest from 'ijest'
 import adapter from '../src'
 
+import testKey from './children/command/key'
 import testDefault from './children/command/default'
 import testType from './children/command/type'
 import testEnum from './children/command/enum'
@@ -57,6 +58,7 @@ ijest({
 
   // 所有测试用例
   tests: {
+    testKey,
     default: testDefault,
     type: testType,
     enum: testEnum,
