@@ -124,6 +124,7 @@ const newData2 = adapter({
 + `$format` 数据格式化转换
 + `$value` 数据值转换
 + `$default` 数据默认值设置
++ `$filter` 数组扩展指令
 
 ### 高级指令
 
@@ -294,6 +295,8 @@ const newData = adapter({
 }
 ```
 
+> `$format`数组模式下，允许使用`{$enum:'enumName'}, {$emap:'emapName'}`进行枚举和映射转化，或者`{$enum:[...]}，{$emap:{...}}`
+
 ### 使用值进行转换 `$value`
 
 ```js
@@ -329,6 +332,40 @@ const newData = adapter({
     list: [
         { name:'保密', data:['中国'], age:16 },
         { name:'张三', data:['中国', '美国'], age:12 }
+    ]
+}
+```
+
+### 数组过滤指令 `$filter`
+
+```js
+const data = {
+  list: [
+    { id: 1, value: 1 },
+    { id: 2, value: 2 },
+    { id: 3, value: 3 },
+    { id: 4, value: 4 },
+    { id: 5, value: 5 },
+    { id: 6, value: 6 },
+  ],
+}
+const nextData = adapter({
+  list: {
+    $filter: (value) => value.id % 2 === 0 || value.value === 5,
+    id: {
+      $key: 'name',
+      $type: String,
+    },
+  },
+}, data)
+
+// 输出
+{
+    list: [
+        { name:'2' },
+        { name:'4' },
+        { name:'5' },
+        { name:'6' },
     ]
 }
 ```
