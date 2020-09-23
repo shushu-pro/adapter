@@ -123,7 +123,7 @@ function Adapter ({ $strict, $clears } = {}) {
           return null
         }
 
-        const { $key = key, $default, $emap, $enum, $type, $value, $deepKeys } = setting
+        const { $key = key, $default, $emap, $enum, $type, $value, $deepKeys, $filter } = setting
         let { $format, $increase, $reduce } = setting
 
         if ($format) {
@@ -183,7 +183,10 @@ function Adapter ({ $strict, $clears } = {}) {
                 nextData = dispatchFormats($format, data, { row, index, root: rootData, adapter })
               } else if (Array.isArray(data)) {
                 nextData = []
-                data.forEach((item, i) => {
+                ;($filter
+                  ? data.filter(item => $filter(item, { row, index, root: rootData, adapter }))
+                  : data
+                ).forEach((item, i) => {
                   walkDatas(item, fullKeys, i, nextData, data)
                 })
               } else {
@@ -346,13 +349,30 @@ function Adapter ({ $strict, $clears } = {}) {
         })
       } else if (Array.isArray($format)) {
         $format.forEach(format => {
-          if (typeof format === 'string') {
+          const type = typeof format
+          if (type === 'string') {
             nextFormat.push(createFormatOptionFromString(format))
-          } else if (typeof format === 'function') {
+          } else if (type === 'function') {
             nextFormat.push({
               name: null,
               dispatch: format,
             })
+          } else if (type === 'object') {
+            const { $enum, $emap } = format
+            const map = $enum || $emap
+            if (map) {
+              let data
+              if (typeof $enum === 'string') {
+                data = enums[$enum]
+              } else if (typeof $emap === 'string') {
+                data = emaps[$emap]
+              } else {
+                data = map
+              }
+              nextFormat.push({ name: null, dispatch: (value) => data[value] })
+            } else {
+              nextFormat.push(format)
+            }
           } else {
             nextFormat.push(format)
           }

@@ -142,5 +142,53 @@ export default function ({ adapter, data }, { tests, test, assert }) {
         timeEnd: String(now),
       })
     })
+
+    test('$format 使用$enum,$emap', () => {
+      const data = {
+        list: [
+          { value: 0 },
+          { value: 1 },
+          { value: 2 },
+        ],
+      }
+      adapter.addEnum({
+        prov: [ 'zj', 'bj', 'sh' ],
+      })
+      adapter.addEmap({
+        prov: { zj: '浙江', bj: '北京', sh: '上海' },
+      })
+
+      const nextData = adapter({
+        list: {
+          value: {
+            $format: [ { $enum: 'prov' }, { $emap: 'prov' } ],
+          },
+        },
+      }, data)
+
+      assert.isEqual(nextData, {
+        list: [
+          { value: '浙江' },
+          { value: '北京' },
+          { value: '上海' },
+        ],
+      })
+
+      const nextData2 = adapter({
+        list: {
+          value: {
+            $format: [ { $enum: [ 'zj', 'bj', 'sh' ] }, { $emap: { zj: '浙江', bj: '北京', sh: '上海' } } ],
+          },
+        },
+      }, data)
+
+      assert.isEqual(nextData2, {
+        list: [
+          { value: '浙江' },
+          { value: '北京' },
+          { value: '上海' },
+        ],
+      })
+    })
   })
 }

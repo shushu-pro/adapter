@@ -25,18 +25,23 @@ const data2 = {
 }
 
 const data = {
-  name: '张三',
+  list: [
+    { id: 1, value: 1 },
+    { id: 2, value: 2 },
+    { id: 3, value: 3 },
+    { id: 4, value: 4 },
+    { id: 5, value: 5 },
+    { id: 6, value: 6 },
+  ],
 }
 const nextData = adapter({
-  $increase: {
-    $key: 'data1',
-    $increase: {
-      $key: 'data2',
-      name: true,
+  list: {
+    $filter: (value) => value.id % 2 === 0 || value.value === 5,
+    id: {
+      $key: 'name',
+      $type: String,
     },
-    name: true,
   },
-  name: true,
 }, data)
 
 

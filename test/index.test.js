@@ -15,6 +15,7 @@ import clears from './children/command/clears'
 import increase from './children/command/increase'
 import reduce from './children/command/reduce'
 import deepKeys from './children/command/deep-keys'
+import arrayFilter from './children/command/array-filter'
 
 import immutable from './children/common/immutable'
 import multiLevels from './children/common/multi-levels'
@@ -67,6 +68,7 @@ ijest({
     increase,
     reduce,
     deepKeys,
+    arrayFilter,
     immutable,
     multiLevels,
     multiRules,
