@@ -9,7 +9,7 @@
   "scripts": {
     "test": "jest test",
     "dev": "npm run dev-browser",
-    "dev-node": "concurrently \"tsc -w\" \"nodemon --exec node ./dist/index.js\"",
+    "dev-node": "concurrently \"tsc -w --declaration false --outDir ./temp\" \"nodemon --exec node ./temp/index.js\"",
     "dev-browser": "rollup -c ./rollup/develop.js -w",
     "build": "rimraf dist && rollup -c ./rollup/build.js",
     "types": "tsc -d --emitDeclarationOnly --allowJs false --declarationDir ./dist",
