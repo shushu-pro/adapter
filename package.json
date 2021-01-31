@@ -1,0 +1,33 @@
+{
+  "name": "@shushu.pro/adapter",
+  "version": "0.0.5",
+  "description": "",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "author": "sschen86@163.com",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest test",
+    "dev": "npm run dev-browser",
+    "dev-node": "concurrently \"tsc -w\" \"nodemon --exec node ./dist/index.js\"",
+    "dev-browser": "rollup -c ./rollup/develop.js -w",
+    "build": "rimraf dist && rollup -c ./rollup/build.js",
+    "types": "tsc -d --emitDeclarationOnly --allowJs false --declarationDir ./dist",
+    "deploy": "npm run test && npm run build && npm run types && npm version patch && npm publish"
+  },
+  "keywords": [
+    "shushu.pro"
+  ],
+  "files": [
+    "lib/",
+    "dist/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "https://github.com/shushu-pro/adapter.git",
+  "devDependencies": {
+    "shushu-lib-dependencies": "^0.0.1"
+  },
+  "typings": "dist/index.d.ts"
+}
